@@ -7,6 +7,7 @@ from routes import auth
 app = FastAPI()
 app.include_router(auth.router)
 
-if __name__ == "__main__":
-    test_connection()
-    Base.metadata.create_all(bind=engine)
+test_connection()
+Base.metadata.create_all(bind=engine)
+
+# if __name__ == "__main__":

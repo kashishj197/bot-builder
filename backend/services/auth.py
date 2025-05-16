@@ -1,12 +1,12 @@
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from backend.routes.auth import get_db
-from backend.utils.jwt import verify_token
+from utils.db import get_db
+from utils.jwt import verify_token
 from db.models import User
 from schemas.user import UserCreate, UserLogin
 import bcrypt
-from datetime import datetime
+from datetime import datetime, timezone
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -24,7 +24,7 @@ def create_user(user_data: UserCreate, db: Session):
         name=user_data.name,
         email=user_data.email,
         hashed_password=hashed_pw.decode('utf-8'),
-        created_at=datetime.now(datetime.timezone.utc)
+        created_at=datetime.now(timezone.utc)
     )
     db.add(user)
     db.commit()
