@@ -7,7 +7,6 @@ from db.models import User
 from schemas.bot import BotCreate
 from services.auth import get_current_user
 
-
 router = APIRouter()
 
 @router.post("/bots")
