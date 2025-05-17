@@ -35,4 +35,43 @@ def get_user_bots_from_neo(user_id: int) -> list:
 
     with driver.session() as session:
         result = session.run(query, {"user_id": user_id})
-        return [record.data() for record in result]
+        bots = []
+        for record in result:
+            bots.append({
+                "id": record["id"],
+                "name": record["name"],
+                "created_at": str(record["created_at"]),
+                "updated_at": str(record["updated_at"]),
+            })
+        return bots
+
+
+def get_bot_with_flow(bot_id: str):
+    driver = get_driver()
+
+    query = """
+    MATCH (b:Bot {id: $bot_id})
+    OPTIONAL MATCH (b)-[:HAS_NODE]->(n:Node)
+    OPTIONAL MATCH (n)-[:LEADS_TO]->(m:Node)
+    RETURN b, collect(DISTINCT n) AS nodes, collect({source: n.id, target: m.id}) AS edges
+    """
+
+    with driver.session() as session:
+        result = session.run(query, {"bot_id": bot_id})
+        record = result.single()
+        if not record:
+            return None
+
+        bot_node = record["b"]
+        nodes = [dict(node) for node in record["nodes"] if node]
+        edges = record["edges"]
+        
+        return {
+            "id": bot_node["id"],
+            "name": bot_node["name"],
+            "created_at": str(bot_node["created_at"]),
+            "updated_at": str(bot_node["updated_at"]),
+            "user_id": bot_node.get("user_id"),
+            "nodes": nodes,
+            "edges": edges
+        }
