@@ -1,4 +1,4 @@
-import store from "../store/store";
+import { store } from "../app/store";
 export type ExampleType = {
   id: number;
   name: string;
