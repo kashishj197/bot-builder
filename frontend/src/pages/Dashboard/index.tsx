@@ -31,39 +31,41 @@ const DashboardPage = () => {
         </Button>
       </div>
 
-      {loading && <p>Loading bots...</p>}
+      {loading ? (
+        <p>Loading bots...</p>
+      ) : (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {bots
+            ? bots.map((bot) => (
+                <BotCard
+                  key={bot.id}
+                  id={bot.id}
+                  name={bot.name}
+                  lastEdited={new Date(bot.updated_at).toLocaleDateString()}
+                />
+              ))
+            : null}
+
+          {/* Create New Bot CTA Card */}
+          {bots.length === 0 ? (
+            <Card className="border-dashed">
+              <CardContent className="flex flex-col items-center justify-center h-full py-10">
+                <div className="bg-primary/10 p-3 rounded-full mb-4">
+                  <Plus className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-medium mb-2">Create a new bot</h3>
+                <p className="text-sm text-gray-500 text-center mb-4">
+                  Start building your custom bot with our visual editor
+                </p>
+                <Button asChild>
+                  <Link to="/studio/new">Get Started</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          ) : null}
+        </div>
+      )}
       {error && <p className="text-red-500">{error}</p>}
-
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {bots
-          ? bots.map((bot) => (
-              <BotCard
-                key={bot.id}
-                id={bot.id}
-                name={bot.name}
-                lastEdited={new Date(bot.updated_at).toLocaleDateString()}
-              />
-            ))
-          : null}
-
-        {/* Create New Bot CTA Card */}
-        {bots.length === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center h-full py-10">
-              <div className="bg-primary/10 p-3 rounded-full mb-4">
-                <Plus className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-lg font-medium mb-2">Create a new bot</h3>
-              <p className="text-sm text-gray-500 text-center mb-4">
-                Start building your custom bot with our visual editor
-              </p>
-              <Button asChild>
-                <Link to="/studio/new">Get Started</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        ) : null}
-      </div>
     </div>
   );
 };
