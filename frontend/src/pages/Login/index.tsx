@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import * as Label from "@radix-ui/react-label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "../../features/auth/authSlice";
-import { RootState } from "../../app/store";
+import { login } from "@/features/auth/authSlice";
+import { RootState } from "@/app/store";
 import { useNavigate } from "react-router-dom";
 
 const LoginPage: React.FC = () => {
@@ -31,50 +33,38 @@ const LoginPage: React.FC = () => {
         </h2>
 
         <div className="space-y-4">
-          <div>
-            <Label.Root
-              className="text-sm font-medium text-gray-700"
-              htmlFor="email"
-            >
+          <div className="space-y-2">
+            <Label.Root htmlFor="email" className="text-sm font-medium">
               Email
             </Label.Root>
-            <input
+            <Input
               id="email"
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          <div>
-            <Label.Root
-              className="text-sm font-medium text-gray-700"
-              htmlFor="password"
-            >
+          <div className="space-y-2">
+            <Label.Root htmlFor="password" className="text-sm font-medium">
               Password
             </Label.Root>
-            <input
+            <Input
               id="password"
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
-          disabled={loading}
-        >
+        <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
-        </button>
+        </Button>
       </form>
     </div>
   );
