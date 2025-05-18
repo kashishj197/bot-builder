@@ -1,7 +1,71 @@
-import React from "react";
+// src/pages/DashboardPage.tsx
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchBots } from "@/features/bots/botsSlice";
+import { RootState } from "@/app/store";
+import BotCard from "@/components/bot/BotCard";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
-type Props = {};
+const DashboardPage = () => {
+  const dispatch = useDispatch();
+  const { bots, loading, error } = useSelector(
+    (state: RootState) => state.bots
+  );
 
-export default function Dashboard({}: Props) {
-  return <div>Dashboard</div>;
-}
+  useEffect(() => {
+    dispatch(fetchBots() as any);
+  }, [dispatch]);
+
+  return (
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">My Bots</h1>
+        <Button asChild>
+          <Link to="/studio/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Create New Bot
+          </Link>
+        </Button>
+      </div>
+
+      {loading && <p>Loading bots...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {bots
+          ? bots.map((bot) => (
+              <BotCard
+                key={bot.id}
+                id={bot.id}
+                name={bot.name}
+                lastEdited={new Date(bot.updated_at).toLocaleDateString()}
+              />
+            ))
+          : null}
+
+        {/* Create New Bot CTA Card */}
+        {bots.length === 0 ? (
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center h-full py-10">
+              <div className="bg-primary/10 p-3 rounded-full mb-4">
+                <Plus className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-medium mb-2">Create a new bot</h3>
+              <p className="text-sm text-gray-500 text-center mb-4">
+                Start building your custom bot with our visual editor
+              </p>
+              <Button asChild>
+                <Link to="/studio/new">Get Started</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ) : null}
+      </div>
+    </div>
+  );
+};
+
+export default DashboardPage;
