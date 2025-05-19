@@ -75,3 +75,58 @@ def get_bot_with_flow(bot_id: str):
             "nodes": nodes,
             "edges": edges
         }
+
+def save_bot_flow_in_neo(bot_id: str, flow_data: dict) -> bool:
+    driver = get_driver()
+
+    # Extract nodes and edges from flow_data
+    nodes = flow_data.get("nodes", [])
+    edges = flow_data.get("edges", [])
+
+    # Start a new session
+    with driver.session() as session:
+        # First, delete existing nodes and edges for the bot
+        session.run(
+            """
+            MATCH (b:Bot {id: $bot_id})-[:HAS_NODE]->(n:Node)
+            DETACH DELETE n
+            """, {"bot_id": bot_id}
+        )
+
+        # Create new nodes and edges
+        for node in nodes:
+            session.run(
+                """
+                MATCH (b:Bot {id: $bot_id})
+                CREATE (b)-[:HAS_NODE]->(n:Node {
+                    id: $id,
+                    type: $type,
+                    content: $label,
+                    created_at: datetime(),
+                    updated_at: datetime()
+                })
+                """,
+                {
+                    "bot_id": bot_id,
+                    "id": node["id"],
+                    "type": node["data"].get("type"),
+                    "label": node["data"].get("label"),
+                },
+            )
+
+        # Create edges (LEADS_TO)
+        for edge in edges:
+            session.run(
+                """
+                MATCH (a:Node {id: $source})<-[:HAS_NODE]-(b:Bot {id: $bot_id}),
+                      (c:Node {id: $target})<-[:HAS_NODE]-(b)
+                CREATE (a)-[:LEADS_TO]->(c)
+                """,
+                {
+                    "bot_id": bot_id,
+                    "source": edge["source"],
+                    "target": edge["target"],
+                },
+            )
+
+    return True

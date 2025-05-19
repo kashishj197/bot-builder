@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from sqlalchemy.orm import Session
-from services.bot import create_bot_in_neo, get_bot_with_flow, get_user_bots_from_neo
+from services.bot import create_bot_in_neo, get_bot_with_flow, get_user_bots_from_neo, save_bot_flow_in_neo
 from utils.db import get_db
 from db.models import User
 from schemas.bot import BotCreate
@@ -47,3 +47,10 @@ def get_bot(bot_id: str, current_user = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Unauthorized")
     return bot
 
+
+@router.put("/bots/{bot_id}")
+def save_bot_flow(bot_id: str, flow_data: dict):
+    success = save_bot_flow_in_neo(bot_id, flow_data)
+    if not success:
+        raise HTTPException(status_code=404, detail="Bot not found")
+    return {"message": "success"}
