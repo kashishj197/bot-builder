@@ -1,10 +1,10 @@
 // src/components/PrivateRoute.tsx
-import { useSelector } from "react-redux";
 import { Navigate, Outlet } from "react-router-dom";
 import { RootState } from "../app/store";
+import { useAppSelector } from "@/app/hooks";
 
 const PrivateRoute = () => {
-  const token = useSelector((state: RootState) => state.auth.token);
+  const token = useAppSelector((state: RootState) => state.auth.token);
 
   return token ? <Outlet /> : <Navigate to="/" replace />;
 };

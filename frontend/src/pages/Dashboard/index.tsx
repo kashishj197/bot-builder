@@ -1,18 +1,17 @@
 // src/pages/DashboardPage.tsx
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { fetchBots } from "@/features/bots/botsSlice";
 import { RootState } from "@/app/store";
 import BotCard from "@/components/bot/BotCard";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "react-router-dom";
 import CreateBotDialog from "@/components/bot/CreateBot";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
 
 const DashboardPage = () => {
-  const dispatch = useDispatch();
-  const { bots, loading, error } = useSelector(
+  const dispatch = useAppDispatch();
+  const { bots, loading, error } = useAppSelector(
     (state: RootState) => state.bots
   );
   const [showCreateBotDialog, setShowCreateBotDialog] = useState(false);

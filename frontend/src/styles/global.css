@@ -3,6 +3,17 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* tailwind base overrides in globals.css */
+
+.react-flow__viewport ::selection {
+  background-color: rgba(0, 123, 255, 0.2); /* or any theme color */
+  color: black; /* visible text and cursor */
+}
+
+.react-flow__viewport {
+  caret-color: black; /* ensures visible caret even in dark mode */
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);

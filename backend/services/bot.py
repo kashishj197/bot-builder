@@ -45,7 +45,6 @@ def get_user_bots_from_neo(user_id: int) -> list:
             })
         return bots
 
-
 def get_bot_with_flow(bot_id: str):
     driver = get_driver()
 
@@ -63,9 +62,27 @@ def get_bot_with_flow(bot_id: str):
             return None
 
         bot_node = record["b"]
-        nodes = [dict(node) for node in record["nodes"] if node]
+        raw_nodes = record["nodes"]
         edges = record["edges"]
-        
+
+        # Map nodes to React Flow format with position
+        nodes = []
+        for node in raw_nodes:
+            if not node:
+                continue
+            nodes.append({
+                "id": node["id"],
+                "type": "default",
+                "data": {
+                    "label": node.get("content", "Node"),
+                    "type": node.get("type", "message")
+                },
+                "position": {
+                    "x": node.get("posX", 100),
+                    "y": node.get("posY", 100)
+                }
+            })
+
         return {
             "id": bot_node["id"],
             "name": bot_node["name"],
@@ -102,6 +119,8 @@ def save_bot_flow_in_neo(bot_id: str, flow_data: dict) -> bool:
                     id: $id,
                     type: $type,
                     content: $label,
+                    posX: $x,
+                    posY: $y,
                     created_at: datetime(),
                     updated_at: datetime()
                 })
@@ -111,6 +130,8 @@ def save_bot_flow_in_neo(bot_id: str, flow_data: dict) -> bool:
                     "id": node["id"],
                     "type": node["data"].get("type"),
                     "label": node["data"].get("label"),
+                    "x": node.get("position", {}).get("x", 100),
+                    "y": node.get("position", {}).get("y", 100),
                 },
             )
 
