@@ -235,6 +235,23 @@ const StudioPage: React.FC<StudioPageProps> = ({ botId }) => {
         dispatch(updateNodes(updatedNodes));
         debouncedSave(updatedNodes, edges);
       },
+      updateCardOrder: (nodeId: string, newCardList: any[]) => {
+        const updatedNodes = nodes.map((n) => {
+          if (n.id === nodeId) {
+            return {
+              ...n,
+              data: {
+                ...n.data,
+                cards: newCardList,
+              },
+            };
+          }
+          return n;
+        });
+
+        dispatch(updateNodes(updatedNodes));
+        debouncedSave(updatedNodes, edges);
+      },
     },
   }));
 
