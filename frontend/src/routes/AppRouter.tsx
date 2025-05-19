@@ -4,6 +4,7 @@ import { Routes, Route } from "react-router-dom";
 import LoginPage from "../pages/Login";
 import DashboardPage from "../pages/Dashboard";
 import PrivateRoute from "../components/PrivateRoute";
+import Studio from "@/pages/Studio";
 
 const AppRouter = () => {
   return (
@@ -14,6 +15,7 @@ const AppRouter = () => {
       {/* Protected Routes */}
       <Route element={<PrivateRoute />}>
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/studio/:bot_id" element={<Studio />} />
         {/* You can add more private pages here */}
       </Route>
 
