@@ -40,7 +40,10 @@ const TestBotDrawer: React.FC<TestBotDrawerProps> = ({
   }, [open]);
 
   const handleNext = (node: Node | null, startAt: number = 0) => {
-    if (!node || !node.data?.cards) return;
+    if (!node || !node.data?.cards) {
+      setCurrentNodeId(null);
+      return;
+    }
 
     for (let i = startAt; i < node.data.cards.length; i++) {
       const card = node.data.cards[i];
@@ -57,16 +60,16 @@ const TestBotDrawer: React.FC<TestBotDrawerProps> = ({
         return;
       }
 
-      if (card.type === "end") {
-        // Reset state
-        setMessages((prev) => [
-          ...prev,
-          { text: card.content || "Session ended.", from: "bot" },
-        ]);
-        setCurrentNodeId(null);
-        setCurrentCardIndex(0);
-        return;
-      }
+      //   if (card.type === "end") {
+      //     // Reset state
+      //     setMessages((prev) => [
+      //       ...prev,
+      //       { text: card.content || "Session ended.", from: "bot" },
+      //     ]);
+      //     setCurrentNodeId(null);
+      //     setCurrentCardIndex(0);
+      //     return;
+      //   }
     }
 
     // If finished all cards, move to next node

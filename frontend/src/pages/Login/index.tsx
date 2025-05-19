@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { login } from "@/features/auth/authSlice";
 import { RootState } from "@/app/store";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 
 const LoginPage: React.FC = () => {
@@ -71,6 +71,17 @@ const LoginPage: React.FC = () => {
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </Button>
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              className="text-blue-600 hover:underline dark:text-blue-400"
+            >
+              Register
+            </Link>
+          </p>
+        </div>
       </form>
     </div>
   );

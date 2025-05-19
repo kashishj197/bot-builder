@@ -24,7 +24,7 @@ const StandardNode = ({ id, data }: any) => {
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
-        <div className="node-drag-handle rounded bg-white dark:bg-zinc-800 p-3 w-48 shadow text-sm relative">
+        <div className="drag-handle rounded bg-white dark:bg-zinc-800 p-3 w-48 shadow text-sm relative">
           <div className="font-bold text-zinc-700 dark:text-white mb-2">
             Standard Node
           </div>
@@ -32,7 +32,7 @@ const StandardNode = ({ id, data }: any) => {
             <div
               key={i}
               draggable
-              className="nopan cursor-move border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 p-1 text-xs rounded mb-1 text-zinc-800 dark:text-zinc-200"
+              className="nodrag cursor-move border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 p-1 text-xs rounded mb-1 text-zinc-800 dark:text-zinc-200"
               onDragStart={(e) => {
                 console.log("dragging", e);
                 e.stopPropagation();

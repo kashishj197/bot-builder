@@ -47,6 +47,8 @@ import DeletableEdge from "./Edges/DeletableEdge";
 import StandardNode from "./Nodes/StandardNode";
 import NodeComponentDrawer from "./NodeSidebar";
 import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 interface StudioPageProps {
   botId: string;
@@ -64,6 +66,7 @@ const StudioPage: React.FC<StudioPageProps> = ({ botId }) => {
     []
   );
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { nodes, edges } = useAppSelector((state: RootState) => state.flow);
   const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -112,6 +115,8 @@ const StudioPage: React.FC<StudioPageProps> = ({ botId }) => {
           data: { label: "Start", type: "start" },
           sourcePosition: Position.Right,
           deletable: false,
+          draggable: true,
+          dragHandle: ".drag-handle",
         };
 
         const endNode: Node = {
@@ -121,6 +126,8 @@ const StudioPage: React.FC<StudioPageProps> = ({ botId }) => {
           data: { label: "End", type: "end" },
           targetPosition: Position.Left,
           deletable: false,
+          draggable: true,
+          dragHandle: ".drag-handle",
         };
 
         dispatch(setFlow({ nodes: [startNode, endNode], edges: [] }));
@@ -173,6 +180,8 @@ const StudioPage: React.FC<StudioPageProps> = ({ botId }) => {
       type: "standard",
       position,
       data: { cards: [] },
+      draggable: true,
+      dragHandle: ".drag-handle",
     };
 
     dispatch(updateNodes([...nodes, newNode]));
@@ -290,6 +299,9 @@ const StudioPage: React.FC<StudioPageProps> = ({ botId }) => {
       <div className="h-[88vh] w-full flex" ref={reactFlowWrapper}>
         <div className="flex-1 relative">
           <div className="dark:bg-zinc-900 p-4 border-b bg-white shadow-sm flex justify-between items-center">
+            <Button onClick={() => navigate("/dashboard")}>
+              <ArrowLeft className="ml-1 h-3 w-3" /> Dashboard
+            </Button>
             <h1 className="text-xl font-bold">Studio – Bot ID: {botId}</h1>
             <Button onClick={() => setOpenTestBot(true)}>Test Bot</Button>
           </div>
@@ -321,6 +333,7 @@ const StudioPage: React.FC<StudioPageProps> = ({ botId }) => {
                   onNodesChange={handleNodesChange}
                   onEdgesChange={handleEdgesChange}
                   onConnect={handleConnect}
+                  nodesDraggable={false}
                   fitView
                 >
                   <Background />

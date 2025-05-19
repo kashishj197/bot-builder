@@ -1,6 +1,6 @@
 // store/slices/authSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { loginUser } from "../../services/authService";
+import { loginUser, registerUser } from "../../services/authService";
 
 interface AuthState {
   user: null | {
@@ -28,6 +28,23 @@ export const login = createAsyncThunk(
       return response;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message || "Login failed");
+    }
+  }
+);
+
+export const register = createAsyncThunk(
+  "auth/registerUser",
+  async (
+    payload: { name: string; email: string; password: string },
+    thunkAPI
+  ) => {
+    try {
+      const response = await registerUser(payload);
+      return response;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.detail || "Registration failed"
+      );
     }
   }
 );
