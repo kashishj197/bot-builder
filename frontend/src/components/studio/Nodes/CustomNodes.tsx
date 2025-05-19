@@ -3,7 +3,7 @@ import { Handle, Position } from "reactflow";
 
 const CustomNode = ({ data }: any) => {
   return (
-    <div className="bg-white border rounded shadow px-4 py-2 min-w-[120px] text-center text-sm">
+    <div className="border rounded shadow px-4 py-2 min-w-[120px] text-center text-sm">
       <strong>{data.label}</strong>
 
       {data.type !== "start" && (

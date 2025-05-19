@@ -172,7 +172,7 @@ const StudioPage: React.FC<StudioPageProps> = ({ botId }) => {
       id: nanoid(),
       type: "standard",
       position,
-      data: { cards: [{ type: "message", content: "Hello!" }] },
+      data: { cards: [] },
     };
 
     dispatch(updateNodes([...nodes, newNode]));
@@ -211,27 +211,51 @@ const StudioPage: React.FC<StudioPageProps> = ({ botId }) => {
         dispatch(updateEdges(filteredEdges));
         debouncedSave(filteredNodes, filteredEdges);
       },
+      updateCardContent: (
+        nodeId: string,
+        cardIndex: number,
+        newContent: string
+      ) => {
+        const updatedNodes = nodes.map((n) => {
+          if (n.id === nodeId) {
+            const updatedCards = n.data.cards.map((card: any, idx: number) =>
+              idx === cardIndex ? { ...card, content: newContent } : card
+            );
+            return {
+              ...n,
+              data: {
+                ...n.data,
+                cards: updatedCards,
+              },
+            };
+          }
+          return n;
+        });
+
+        dispatch(updateNodes(updatedNodes));
+        debouncedSave(updatedNodes, edges);
+      },
     },
   }));
 
-  const onAddNode = (type: "message" | "user_input") => {
-    const newNode: Node = {
-      id: nanoid(),
-      type: "default",
-      position: {
-        x: Math.random() * 300 + 100,
-        y: Math.random() * 300 + 100,
-      },
-      data: {
-        label: type === "message" ? "New Message" : "User Input",
-        type,
-      },
-      sourcePosition: Position.Right,
-      targetPosition: Position.Left,
-    };
-    dispatch(updateNodes([...nodes, newNode]));
-    debouncedSave([...nodes, newNode], edges);
-  };
+  // const onAddNode = (type: "message" | "user_input") => {
+  //   const newNode: Node = {
+  //     id: nanoid(),
+  //     type: "default",
+  //     position: {
+  //       x: Math.random() * 300 + 100,
+  //       y: Math.random() * 300 + 100,
+  //     },
+  //     data: {
+  //       label: type === "message" ? "New Message" : "User Input",
+  //       type,
+  //     },
+  //     sourcePosition: Position.Right,
+  //     targetPosition: Position.Left,
+  //   };
+  //   dispatch(updateNodes([...nodes, newNode]));
+  //   debouncedSave([...nodes, newNode], edges);
+  // };
 
   return (
     <div className="flex">
