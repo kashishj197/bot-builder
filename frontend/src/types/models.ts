@@ -64,5 +64,11 @@ export interface RegisterRequest {
 
 export interface RegisterResponse {
   message: string;
-  user_id: number;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  access_token: string;
+  token_type: string;
 }
