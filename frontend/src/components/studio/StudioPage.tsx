@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -10,8 +16,16 @@ import ReactFlow, {
   Edge,
   Node,
   Position,
+  useReactFlow,
+  ReactFlowProvider,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 import NodeSidebar from "./NodeSidebar";
 import CustomNode from "./Nodes/CustomNodes";
@@ -30,13 +44,19 @@ import axios from "axios";
 import debounce from "lodash.debounce";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import DeletableEdge from "./Edges/DeletableEdge";
+import StandardNode from "./Nodes/StandardNode";
+import NodeComponentDrawer from "./NodeSidebar";
+import { Button } from "../ui/button";
 
 interface StudioPageProps {
   botId: string;
 }
 
 const StudioPage: React.FC<StudioPageProps> = ({ botId }) => {
-  const nodeTypes = useMemo(() => ({ default: CustomNode }), []);
+  const nodeTypes = useMemo(
+    () => ({ default: CustomNode, standard: StandardNode }),
+    []
+  );
   const edgeTypes = useMemo(
     () => ({
       deletable: DeletableEdge,
@@ -45,6 +65,33 @@ const StudioPage: React.FC<StudioPageProps> = ({ botId }) => {
   );
   const dispatch = useAppDispatch();
   const { nodes, edges } = useAppSelector((state: RootState) => state.flow);
+  const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [openTestBot, setOpenTestBot] = useState(false);
+  // const reactFlowInstance = useReactFlow();
+
+  const [contextPosition, setContextPosition] = React.useState<{
+    x: number;
+    y: number;
+  }>({ x: 0, y: 0 });
+
+  const handleAddComponent = (nodeId: string) => {
+    setSelectedNodeId(nodeId);
+  };
+
+  const handleInsertCard = (type: "message" | "user_input") => {
+    const updatedNodes = nodes.map((node) => {
+      if (node.id === selectedNodeId) {
+        const newCards = [...(node.data.cards || []), { type, content: "" }];
+        return { ...node, data: { ...node.data, cards: newCards } };
+      }
+      return node;
+    });
+
+    dispatch(updateNodes(updatedNodes));
+    debouncedSave(updatedNodes, edges);
+    setSelectedNodeId(null);
+  };
 
   // Fetch initial flow from backend
   const fetchBotFlow = useCallback(async () => {
@@ -108,6 +155,30 @@ const StudioPage: React.FC<StudioPageProps> = ({ botId }) => {
     [nodes, edges, dispatch, debouncedSave]
   );
 
+  const handleAddStandardNode = ({ x, y }: { x: number; y: number }) => {
+    const bounds = reactFlowWrapper.current?.getBoundingClientRect();
+
+    const position = bounds
+      ? {
+          x: x - bounds.left,
+          y: y - bounds.top,
+        }
+      : {
+          x: 100,
+          y: 100,
+        }; // fallback default
+
+    const newNode = {
+      id: nanoid(),
+      type: "standard",
+      position,
+      data: { cards: [{ type: "message", content: "Hello!" }] },
+    };
+
+    dispatch(updateNodes([...nodes, newNode]));
+    debouncedSave([...nodes, newNode], edges);
+  };
+
   const handleEdgesChange = useCallback(
     (changes: any) => {
       const updated = applyEdgeChanges(changes, edges);
@@ -125,6 +196,23 @@ const StudioPage: React.FC<StudioPageProps> = ({ botId }) => {
     },
     [nodes, edges, dispatch, debouncedSave]
   );
+
+  const nodesWithDelete = nodes.map((node) => ({
+    ...node,
+    data: {
+      ...node.data,
+      onAddComponent: handleAddComponent,
+      onDelete: (id: string) => {
+        const filteredNodes = nodes.filter((n) => n.id !== id);
+        const filteredEdges = edges.filter(
+          (e) => e.source !== id && e.target !== id
+        );
+        dispatch(updateNodes(filteredNodes));
+        dispatch(updateEdges(filteredEdges));
+        debouncedSave(filteredNodes, filteredEdges);
+      },
+    },
+  }));
 
   const onAddNode = (type: "message" | "user_input") => {
     const newNode: Node = {
@@ -147,37 +235,68 @@ const StudioPage: React.FC<StudioPageProps> = ({ botId }) => {
 
   return (
     <div className="flex">
-      <NodeSidebar onAddNode={onAddNode} />
-      <TestBotDrawer nodes={nodes} edges={edges} />
-      <div className="h-[88vh] w-full flex">
+      <NodeComponentDrawer
+        open={!!selectedNodeId}
+        onClose={() => setSelectedNodeId(null)}
+        onAddCard={handleInsertCard}
+      />
+      <TestBotDrawer
+        nodes={nodes}
+        edges={edges}
+        open={openTestBot}
+        onClose={() => setOpenTestBot(false)}
+      />
+      <div className="h-[88vh] w-full flex" ref={reactFlowWrapper}>
         <div className="flex-1 relative">
-          <div className="p-4 border-b bg-white shadow-sm flex justify-between items-center">
+          <div className="dark:bg-zinc-900 p-4 border-b bg-white shadow-sm flex justify-between items-center">
             <h1 className="text-xl font-bold">Studio – Bot ID: {botId}</h1>
+            <Button onClick={() => setOpenTestBot(true)}>Test Bot</Button>
           </div>
-          <ReactFlow
-            nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
-            nodes={nodes}
-            edges={edges.map((edge) => ({
-              ...edge,
-              type: "deletable",
-              data: {
-                onDelete: (id: string) => {
-                  const filtered = edges.filter((e) => e.id !== id);
-                  dispatch(updateEdges(filtered));
-                  debouncedSave(nodes, filtered);
-                },
-              },
-            }))}
-            onNodesChange={handleNodesChange}
-            onEdgesChange={handleEdgesChange}
-            onConnect={handleConnect}
-            fitView
-          >
-            <Background />
-            <MiniMap />
-            <Controls />
-          </ReactFlow>
+
+          <ContextMenu>
+            <ContextMenuTrigger asChild>
+              <div
+                onContextMenu={(e) => {
+                  // e.preventDefault();
+                  setContextPosition({ x: e.clientX, y: e.clientY });
+                }}
+                className="w-full h-full"
+              >
+                <ReactFlow
+                  nodeTypes={nodeTypes}
+                  edgeTypes={edgeTypes}
+                  nodes={nodesWithDelete}
+                  edges={edges.map((edge) => ({
+                    ...edge,
+                    type: "deletable",
+                    data: {
+                      onDelete: (id: string) => {
+                        const filtered = edges.filter((e) => e.id !== id);
+                        dispatch(updateEdges(filtered));
+                        debouncedSave(nodes, filtered);
+                      },
+                    },
+                  }))}
+                  onNodesChange={handleNodesChange}
+                  onEdgesChange={handleEdgesChange}
+                  onConnect={handleConnect}
+                  fitView
+                >
+                  <Background />
+                  <MiniMap />
+                  <Controls />
+                </ReactFlow>
+              </div>
+            </ContextMenuTrigger>
+
+            <ContextMenuContent className="w-48">
+              <ContextMenuItem
+                onClick={() => handleAddStandardNode(contextPosition)}
+              >
+                ➕ Add Standard Node
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
         </div>
       </div>
     </div>

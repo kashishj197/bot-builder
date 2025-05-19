@@ -1,3 +1,4 @@
+import json
 from db.neo4j import get_driver
 from uuid import uuid4
 from datetime import datetime
@@ -72,11 +73,8 @@ def get_bot_with_flow(bot_id: str):
                 continue
             nodes.append({
                 "id": node["id"],
-                "type": "default",
-                "data": {
-                    "label": node.get("content", "Node"),
-                    "type": node.get("type", "message")
-                },
+                "type": node.get("type", "default"),
+                "data": json.loads(node.get('data', {})),
                 "position": {
                     "x": node.get("posX", 100),
                     "y": node.get("posY", 100)
@@ -118,7 +116,7 @@ def save_bot_flow_in_neo(bot_id: str, flow_data: dict) -> bool:
                 CREATE (b)-[:HAS_NODE]->(n:Node {
                     id: $id,
                     type: $type,
-                    content: $label,
+                    data: $data,
                     posX: $x,
                     posY: $y,
                     created_at: datetime(),
@@ -128,8 +126,8 @@ def save_bot_flow_in_neo(bot_id: str, flow_data: dict) -> bool:
                 {
                     "bot_id": bot_id,
                     "id": node["id"],
-                    "type": node["data"].get("type"),
-                    "label": node["data"].get("label"),
+                    "data": json.dumps(node.get("data", {})),
+                    "type": node["type"],
                     "x": node.get("position", {}).get("x", 100),
                     "y": node.get("position", {}).get("y", 100),
                 },

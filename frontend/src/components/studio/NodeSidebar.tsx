@@ -1,24 +1,45 @@
-// src/components/studio/NodeSidebar.tsx
-import { Button } from "@/components/ui/button";
+// src/components/NodeComponentDrawer.tsx
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
-interface Props {
-  onAddNode: (type: "message" | "user_input") => void;
+interface NodeComponentDrawerProps {
+  open: boolean;
+  onClose: (open: boolean) => void;
+  onAddCard: (type: "message" | "user_input") => void;
 }
 
-const NodeSidebar: React.FC<Props> = ({ onAddNode }) => {
+const NodeComponentDrawer: React.FC<NodeComponentDrawerProps> = ({
+  open,
+  onClose,
+  onAddCard,
+}) => {
   return (
-    <div className="h-screen w-60 bg-white shadow-md p-4 border-r h-full">
-      <h2 className="text-lg font-bold mb-4">Add Node</h2>
-      <div className="space-y-2">
-        <Button className="w-full" onClick={() => onAddNode("message")}>
-          ➕ Message Node
-        </Button>
-        <Button className="w-full" onClick={() => onAddNode("user_input")}>
-          ✏️ User Input Node
-        </Button>
-      </div>
-    </div>
+    <Sheet open={open} onOpenChange={onClose}>
+      <SheetContent side="left" className="w-[280px] sm:w-[320px] p-4">
+        <SheetHeader>
+          <SheetTitle>Select Component</SheetTitle>
+        </SheetHeader>
+        <div className="mt-4 space-y-2">
+          <button
+            onClick={() => onAddCard("message")}
+            className="w-full text-left p-2 rounded-md hover:bg-muted transition"
+          >
+            📝 Message
+          </button>
+          <button
+            onClick={() => onAddCard("user_input")}
+            className="w-full text-left p-2 rounded-md hover:bg-muted transition"
+          >
+            🔤 User Input
+          </button>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 };
 
-export default NodeSidebar;
+export default NodeComponentDrawer;

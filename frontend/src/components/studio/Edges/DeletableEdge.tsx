@@ -28,9 +28,7 @@ const DeletableEdge = (props: EdgeProps) => {
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             pointerEvents: "all",
             cursor: "pointer",
-            background: "white",
-            border: "1px solid #ccc",
-            borderRadius: "100%",
+            background: "transparent",
             padding: "2px",
             display: "flex",
             alignItems: "center",
@@ -41,7 +39,7 @@ const DeletableEdge = (props: EdgeProps) => {
           className="hover:opacity-100"
           onClick={() => data?.onDelete?.(id)}
         >
-          <X className="w-3 h-3 text-red-600" />
+          <X className="w-3 h-3 text-white" />
         </div>
       </EdgeLabelRenderer>
     </>
