@@ -132,8 +132,21 @@ const StudioPage: React.FC<StudioPageProps> = ({ botId }) => {
 
         dispatch(setFlow({ nodes: [startNode, endNode], edges: [] }));
       } else {
-        console.log("Fetched nodes:", data);
-        dispatch(setFlow({ nodes: data.nodes, edges: data.edges || [] }));
+        const processedNodes = data.nodes.map((node: any) => ({
+          ...node,
+          draggable: true,
+          dragHandle: ".drag-handle",
+        }));
+        const processedEdges = (data.edges || []).map(
+          (edge: any, index: number) => ({
+            ...edge,
+            id: edge.id || `${edge.source}-${edge.target}-${index}`,
+          })
+        );
+
+        dispatch(
+          setFlow({ nodes: processedNodes, edges: processedEdges || [] })
+        );
       }
     } catch (error) {
       console.error("Error fetching bot flow:", error);

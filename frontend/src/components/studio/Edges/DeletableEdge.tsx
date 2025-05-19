@@ -3,7 +3,7 @@ import {
   BaseEdge,
   EdgeLabelRenderer,
   EdgeProps,
-  getBezierPath,
+  getSmoothStepPath,
 } from "reactflow";
 import { X } from "lucide-react";
 
@@ -11,7 +11,7 @@ const DeletableEdge = (props: EdgeProps) => {
   const { id, sourceX, sourceY, targetX, targetY, markerEnd, selected, data } =
     props;
 
-  const [edgePath, labelX, labelY] = getBezierPath({
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
     sourceY,
     targetX,
