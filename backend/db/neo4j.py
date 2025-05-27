@@ -1,5 +1,7 @@
 from neo4j import GraphDatabase
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Use environment variables or hardcode for now
 NEO4J_URI = os.getenv("NEO4J_URI", "Your connection URI here")

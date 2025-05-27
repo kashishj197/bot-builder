@@ -6,6 +6,7 @@ import DashboardPage from "../pages/Dashboard";
 import PrivateRoute from "../components/PrivateRoute";
 import Studio from "@/pages/Studio";
 import RegisterPage from "@/pages/Register";
+import Preview from "@/pages/Studio/Preview";
 
 const AppRouter = () => {
   return (
@@ -18,6 +19,7 @@ const AppRouter = () => {
       <Route element={<PrivateRoute />}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/studio/:bot_id" element={<Studio />} />
+        <Route path="/studio/:bot_id/preview" element={<Preview />} />
         {/* You can add more private pages here */}
       </Route>
 
